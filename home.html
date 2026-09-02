@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>gambling</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="home.css">
+</head>
+<body>
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">SunnyRed</div>
+    <nav>
+      <a href="home.html" data-i18n="nav.home">Home</a>
+      <a href="inventory.html" data-i18n="nav.inventory">Inventory</a>
+      <a href="topup.html" data-i18n="nav.topup">Top Up</a>
+      <a href="store.html" data-i18n="nav.store">Store</a>
+    </nav>
+    <div class="sidebar-footer">© 2026</div>
+  </aside>
+
+  <header class="mobile-header">
+    <button id="hamburger" aria-label="Open menu">☰</button>
+    <div class="brand">SunnyRed</div>
+  </header>
+
+  <div class="coin-box" id="coinBox" aria-live="polite">
+    <div class="coin-amount"><span id="coinCount">0</span> <span data-i18n="coins">coins</span></div>
+  </div>
+  <div class="key-box" id="keyBox" aria-live="polite">
+    <div class="key-amount"><span id="keyCount">0</span> <span data-i18n="keys">keys</span></div>
+    <button id="buyKeyBtn" class="btn" data-i18n="buy.key">Buy Key (1000)</button>
+  </div>
+
+  <main class="content">
+    <section id="home" class="page active">
+      <h1 data-i18n="welcome.title">Welcome</h1>
+      <p data-i18n="welcome.desc">Bright, friendly design with a pale orange/yellow theme and red accents.</p>
+
+      <div class="wheel-wrap">
+        <div id="wheel" class="wheel">
+          <div class="wheel-center">SPIN</div>
+        </div>
+        <button id="spinBtn" class="btn" data-i18n="spin.button">Spin the Wheel</button>
+        <div class="wheel-note" data-i18n="spin.note">Possible rewards: coins, crates, collectables</div>
+      </div>
+    </section>
+  </main>
+
+  <div id="paymentModal" class="modal" aria-hidden="true">
+    <div class="modal-panel">
+      <button class="modal-close" id="paymentClose">×</button>
+      <h2 data-i18n="payment.title">Complete Payment</h2>
+      <p class="muted" data-i18n="payment.demo">Demo payment — no real transactions are made.</p>
+      <div class="payment-amount"><span data-i18n="payment.amount">Amount:</span> <strong id="paymentAmount">€0</strong></div>
+      <label data-i18n="payment.method">Choose method</label>
+      <div class="method-row">
+        <label><input type="radio" name="paymethod" value="card" checked> Card</label>
+        <label><input type="radio" name="paymethod" value="paypal"> PayPal</label>
+      </div>
+      <div class="payment-actions">
+            <button id="confirmPayment" class="btn" data-i18n="payment.confirm">Confirm Payment</button>
+            <button id="cancelPayment" class="btn" style="background:#ddd;color:#333" data-i18n="payment.cancel">Cancel</button>
+      </div>
+          <div id="paymentProcessing" class="processing" aria-hidden="true" data-i18n="payment.processing">Processing…</div>
+    </div>
+  </div>
+
+  <div id="rewardModal" class="reward-modal hidden" aria-hidden="true">
+    <button id="rewardClose" class="modal-close big">×</button>
+    <div id="rewardContent" class="reward-content"></div>
+  </div>
+
+  <button id="langToggle" class="lang-toggle">EN</button>
+  <script src="script.js"></script>
+  <script src="home.js"></script>
+</body>
+</html>
