@@ -88,10 +88,69 @@ document.addEventListener('DOMContentLoaded', () => {
 
   
   function randChoice(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
-  function spinOutcome(){ const choices = [{type:'coins',amount:25},{type:'coins',amount:50},{type:'coins',amount:100},{type:'crate',rarity:'common'},{type:'crate',rarity:'common'},{type:'crate',rarity:'rare'},{type:'collectable'},{type:'coins',amount:250},{type:'crate',rarity:'epic'}]; return randChoice(choices); }
-  function spinOutcomeForCrate(r){ if(r==='common') return randChoice([{type:'coins',amount:30},{type:'coins',amount:50},{type:'crate',rarity:'common'},{type:'collectable'}]); if(r==='rare') return randChoice([{type:'coins',amount:80},{type:'coins',amount:150},{type:'crate',rarity:'rare'},{type:'collectable'},{type:'collectable'}]); return randChoice([{type:'coins',amount:250},{type:'coins',amount:500},{type:'collectable'},{type:'crate',rarity:'rare'}]); }
 
-  function applyOutcome(o){ if(!o) return; if(o.type==='coins') addCoins(o.amount||10); else if(o.type==='crate') addCrate(o.rarity||'common'); else if(o.type==='collectable') addCollectable(); }
+  function placeholderOutcome(slotName){
+    return { type: 'placeholder', slot: slotName, label: '-moet nog komen-' };
+  }
+
+  function spinOutcome(){
+    const choices = [
+      placeholderOutcome('hond'),
+      placeholderOutcome('kat'),
+      placeholderOutcome('leeuw'),
+      placeholderOutcome('krokodil'),
+      placeholderOutcome('draak'),
+      placeholderOutcome('griffen'),
+      placeholderOutcome('gouden bever'),
+      placeholderOutcome('rare crate'),
+      placeholderOutcome('epic crate'),
+      placeholderOutcome('600 coins'),
+      placeholderOutcome('1 key')
+    ];
+    return randChoice(choices);
+  }
+
+  function spinOutcomeForCrate(r){
+    const crateRewards = {
+      common: [
+        placeholderOutcome('50 coins'),
+        placeholderOutcome('125 coins'),
+        placeholderOutcome('hond'),
+        placeholderOutcome('kat'),
+        placeholderOutcome('1 key')
+      ],
+      rare: [
+        placeholderOutcome('200 coins'),
+        placeholderOutcome('275 coins'),
+        placeholderOutcome('leeuw'),
+        placeholderOutcome('krokodil'),
+        placeholderOutcome('1 key'),
+        placeholderOutcome('hond'),
+        placeholderOutcome('cat')
+      ],
+      epic: [
+        placeholderOutcome('500 coins'),
+        placeholderOutcome('625 coins'),
+        placeholderOutcome('gouden bever'),
+        placeholderOutcome('draak'),
+        placeholderOutcome('griffen'),
+        placeholderOutcome('krokodil'),
+        placeholderOutcome('leeuw'),
+        placeholderOutcome('2 keys'),
+        placeholderOutcome('common crate')
+      ]
+    };
+    return randChoice(crateRewards[r] || crateRewards.common);
+  }
+
+  function applyOutcome(o){
+    if(!o) return;
+    if(o.type === 'placeholder'){
+      showRewardModal('Uitkomst', o.label || '-moet nog komen-');
+      return;
+    }
+    if(o.type==='coins') addCoins(o.amount||10); else if(o.type==='crate') addCrate(o.rarity||'common'); else if(o.type==='collectable') addCollectable();
+  }
 
   
   function showPopup(text){ const div = document.createElement('div'); div.className='reward-popup'; div.textContent = text; document.body.appendChild(div); requestAnimationFrame(()=>div.style.opacity=1); setTimeout(()=>{ div.style.opacity=0; setTimeout(()=>div.remove(),400); },3000); }
