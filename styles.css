@@ -44,6 +44,9 @@ h1{color:var(--red);margin-top:0}
 .coin-box{position:fixed;right:18px;top:18px;background:linear-gradient(180deg,#fff,#fff8e8);padding:10px 14px;border-radius:12px;box-shadow:var(--shadow);z-index:60}
 .coin-amount{font-weight:800;color:var(--red)}
 
+/* Key box positioned under the coin box */
+.key-box{position:fixed;right:18px;top:72px;background:linear-gradient(180deg,#fff,#fff8f0);padding:8px 12px;border-radius:12px;box-shadow:var(--shadow);z-index:60;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.key-box .key-label{font-size:13px;color:var(--muted)}
 .key-box .key-amount{font-weight:800;color:#0b74a8}
 .key-box .btn{padding:6px 10px;font-size:13px}
 
