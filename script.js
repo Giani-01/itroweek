@@ -70,7 +70,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const title = t(`crate.${item.rarity}.title`) || (item.rarity? item.rarity[0].toUpperCase()+item.rarity.slice(1)+' Crate':'Crate');
         div.innerHTML = `<h4>${title}</h4><div class="muted">${t('label.unopened')}</div><button class="btn open-crate" data-id="${item.id}">${t('button.open')}</button>`;
       } else {
-        div.innerHTML = `<h4>${t('label.collectable')}</h4><div class="muted">${t('label.unnamed')}</div>`;
+        const collectibleName = item.name || t('label.unnamed');
+        div.innerHTML = `<h4>${collectibleName}</h4><div class="muted">${t('label.collectable')}</div>`;
       }
       grid.appendChild(div);
     });
