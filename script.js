@@ -110,9 +110,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }); }
 
     
-    replaceAll('.topup-option').forEach(btn => btn.addEventListener('click', ()=>{
-      const amt = Number(btn.dataset.amount)||0; const paymentModal = document.getElementById('paymentModal'); const paymentAmount = document.getElementById('paymentAmount'); const paymentProcessing = document.getElementById('paymentProcessing'); if(paymentAmount) paymentAmount.textContent = `€${amt}`; if(paymentProcessing) paymentProcessing.setAttribute('aria-hidden','true'); if(paymentModal) paymentModal.setAttribute('aria-hidden','false'); pendingTopup = amt;
-    }));
+    // Top-up buttons: use event delegation on the container so cloned
+    // nodes or dynamically replaced buttons still work.
+    const topupForm = document.getElementById('topupForm');
+    if(topupForm){
+      topupForm.addEventListener('click', (ev) => {
+        const btn = ev.target.closest('.topup-option');
+        if(!btn || !topupForm.contains(btn)) return;
+        const amt = Number(btn.dataset.amount) || 0;
+        console.log('Top-up option clicked:', amt);
+        const paymentModal = document.getElementById('paymentModal');
+        const paymentAmount = document.getElementById('paymentAmount');
+        const paymentProcessing = document.getElementById('paymentProcessing');
+        if(paymentAmount) paymentAmount.textContent = `€${amt}`;
+        if(paymentProcessing) paymentProcessing.setAttribute('aria-hidden','true');
+        if(paymentModal) paymentModal.setAttribute('aria-hidden','false');
+        pendingTopup = amt;
+      });
+    }
 
     
     const paymentClose = replaceNode(document.getElementById('paymentClose'));
@@ -122,6 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if(paymentClose) paymentClose.addEventListener('click', ()=>{ const pm = document.getElementById('paymentModal'); if(pm) pm.setAttribute('aria-hidden','true'); });
     if(cancelPayment) cancelPayment.addEventListener('click', ()=>{ const pm = document.getElementById('paymentModal'); if(pm) pm.setAttribute('aria-hidden','true'); });
     if(confirmPayment) confirmPayment.addEventListener('click', ()=>{
+      console.log('Confirm payment clicked, pendingTopup=', pendingTopup);
       if(paymentProcessing) paymentProcessing.setAttribute('aria-hidden','false'); setTimeout(()=>{ const gained = (pendingTopup||0)*10; addCoins(gained); const pm = document.getElementById('paymentModal'); if(pm) pm.setAttribute('aria-hidden','true'); if(paymentProcessing) paymentProcessing.setAttribute('aria-hidden','true'); const topupNotice = document.getElementById('topupNotice'); if(topupNotice) topupNotice.textContent = `${t('topup.title')} €${pendingTopup} — ${t('reward.coins',{n:gained})}`; pendingTopup = 0; }, 1200);
     });
 
