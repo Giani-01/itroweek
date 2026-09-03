@@ -267,9 +267,45 @@ function spinOutcomeForCrate(crateRarity) {
   };
 }
 
+function rarityEffect(rarity) {
+
+  const colors = {
+    common: '#00ff00',      // 🟢 groen
+    rare: '#008cff',        // 🔵 blauw
+    epic: '#a020f0',         // 🟣 paars
+    legendary: '#ffd700'     // 🟡 goud
+  };
+
+  const color = colors[rarity];
+
+  if (!color) return;
+
+  const effect = document.createElement('div');
+
+  effect.className = 'rarity-effect';
+  effect.style.setProperty('--rarity-color', color);
+
+  document.body.appendChild(effect);
+
+  requestAnimationFrame(() => {
+    effect.classList.add('show');
+  });
+
+  setTimeout(() => {
+    effect.classList.remove('show');
+
+    setTimeout(() => {
+      effect.remove();
+    }, 300);
+
+  }, 900);
+}
+
 function applyOutcome(o) {
 
   if (!o) return;
+
+  rarityEffect(o.rarity);
 
   // Coins
   if (o.type === 'coins') {
@@ -335,7 +371,45 @@ function applyOutcome(o) {
   function showPopup(text){ const div = document.createElement('div'); div.className='reward-popup'; div.textContent = text; document.body.appendChild(div); requestAnimationFrame(()=>div.style.opacity=1); setTimeout(()=>{ div.style.opacity=0; setTimeout(()=>div.remove(),400); },3000); }
   function showRewardModal(title, text){ const modal = document.getElementById('rewardModal'); const content = document.getElementById('rewardContent'); if(!modal || !content){ return showPopup(text || title); } content.innerHTML = `<h2>${title || ''}</h2><p>${text||''}</p>`; modal.classList.remove('hidden'); modal.setAttribute('aria-hidden','false'); }
 
-  function openCrate(id){ const idx = state.inventory.findIndex(i => i.id===id && i.type==='crate'); if(idx===-1) return; const crate = state.inventory.splice(idx,1)[0]; saveState(); renderInventory(); const outcome = spinOutcomeForCrate(crate.rarity||'common'); applyOutcome(outcome); }
+  function openCrate(id) {
+  const idx = state.inventory.findIndex(i => i.id === id && i.type === 'crate');
+  if (idx === -1) return;
+  
+  const crate = state.inventory.splice(idx, 1)[0];
+  saveState();
+  renderInventory();
+
+  const crateRarity = crate.rarity || 'common';
+
+  // GIF bestand en achtergrondkleur per kist-zeldzaamheid
+  const crateConfigs = {
+    common: { gif: 'commen crate.gif', color: 'rgba(0, 255, 0, 0.25)' },
+    rare:   { gif: 'rare crate.gif',  color: 'rgba(0, 140, 255, 0.25)' },
+    epic:   { gif: 'epic crate.webp',  color: 'rgba(160, 32, 240, 0.25)' }
+  };
+
+  const config = crateConfigs[crateRarity] || crateConfigs.common;
+
+  // Maak de animatie overlay aan
+  const animModal = document.createElement('div');
+  animModal.className = 'crate-anim-modal';
+  animModal.style.backgroundColor = config.color;
+
+  const img = document.createElement('img');
+  // Voeg een unieke parameter toe zodat geanimeerde GIF's vanaf het begin afspelen
+  img.src = config.gif + '?t=' + Date.now();
+  img.className = 'crate-anim-img';
+
+  animModal.appendChild(img);
+  document.body.appendChild(animModal);
+
+  // Wacht op de animatie (3 seconden) en toon daarna het item
+  setTimeout(() => {
+    animModal.remove();
+    const outcome = spinOutcomeForCrate(crateRarity);
+    applyOutcome(outcome);
+  }, 3000);
+}
 
   
   function bindUi(){

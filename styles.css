@@ -91,3 +91,57 @@ h1{color:var(--red);margin-top:0}
 @media (max-width:420px){
   .inventory-grid{grid-template-columns:repeat(1,1fr)}
 }
+
+/* =========================
+   RARITY LIGHT EFFECT
+   ========================= */
+
+.rarity-effect {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 99999;
+
+  background: radial-gradient(
+    circle,
+    transparent 30%,
+    var(--rarity-color) 100%
+  );
+
+  opacity: 0;
+  box-shadow:
+    inset 0 0 80px var(--rarity-color),
+    inset 0 0 180px var(--rarity-color);
+
+  transition: opacity 0.25s ease;
+}
+
+.rarity-effect.show {
+  opacity: 0.7;
+}
+
+/* =========================
+   CRATE ANIMATION MODAL
+   ========================= */
+
+.crate-anim-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease;
+}
+
+.crate-anim-img {
+  max-width: 280px;
+  max-height: 280px;
+  object-fit: contain;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
