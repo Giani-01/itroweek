@@ -99,10 +99,31 @@ document.addEventListener('DOMContentLoaded', () => {
 // =========================
 
 const rarityOdds = {
-  common: 60,
-  rare: 30,
-  epic: 8,
-  legendary: 2
+  common: 0,
+  rare: 15,
+  epic: 50,
+  legendary: 35
+};
+
+const crateRarityOdds = {
+  common: {
+    common: 60,
+    rare: 30,
+    epic: 8,
+    legendary: 2
+  },
+  rare: {
+    common: 30,
+    rare: 45,
+    epic: 20,
+    legendary: 5
+  },
+  epic: {
+    common: 10,
+    rare: 30,
+    epic: 45,
+    legendary: 15
+  }
 };
 
 
@@ -114,7 +135,7 @@ const rarityItems = {
 
   common: [
     { type: 'coins', amount: 125, name: '125 coins' },
-    { type: 'coins', amount: 600, name: '400 coins' },
+    { type: 'coins', amount: 400, name: '400 coins' },
     { type: 'crate', rarity: 'common', name: 'Common Crate' }
   ],
 
@@ -206,10 +227,7 @@ function spinOutcome() {
 
 function spinOutcomeForCrate(crateRarity) {
 
-  // Iedere crate kan zijn eigen rarity odds hebben.
-  // Voorlopig gebruikt hij dezelfde odds.
-
-  const rarity = randomRarity();
+  const rarity = randomRarity(crateRarityOdds[crateRarity] || rarityOdds);
 
   const item = randomItemFromRarity(rarity);
 
