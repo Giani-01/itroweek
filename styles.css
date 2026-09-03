@@ -51,8 +51,110 @@ h1{color:var(--red);margin-top:0}
 .key-box .btn{padding:6px 10px;font-size:13px}
 
 .wheel-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;margin:18px 0}
-.wheel{width:220px;height:220px;border-radius:50%;background:conic-gradient(#ffe9a8 0deg 120deg,#ffd1b0 120deg 240deg,#ffd8d8 240deg 360deg);display:flex;align-items:center;justify-content:center;position:relative;transition:transform 3s cubic-bezier(.2,.9,.2,1)}
-.wheel:after{content:'';position:absolute;top:-14px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-bottom:14px solid var(--red)}
+.wheel-wrap{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
+  margin:40px 0;
+}
+
+.wheel-container{
+  position:relative;
+  width:320px;
+  height:320px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.wheel{
+  width:300px;
+  height:300px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  overflow:hidden;
+  border:8px solid white;
+  box-shadow:
+    0 8px 25px rgba(0,0,0,0.2),
+    0 0 0 3px #ddd;
+  transition:transform 5s cubic-bezier(.12,.8,.15,1);
+}
+
+/* Pijl staat ALTIJD boven het rad */
+.wheel-pointer{
+  position:absolute;
+  top:-8px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:20;
+
+  width:0;
+  height:0;
+
+  border-left:18px solid transparent;
+  border-right:18px solid transparent;
+  border-top:38px solid var(--red);
+
+  filter:drop-shadow(0 3px 3px rgba(0,0,0,.3));
+}
+
+/* Middelpunt */
+.wheel-center{
+  position:absolute;
+  width:70px;
+  height:70px;
+  border-radius:50%;
+  background:white;
+  border:5px solid var(--red);
+  color:var(--red);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:900;
+  z-index:10;
+  box-shadow:0 3px 10px rgba(0,0,0,.2);
+  pointer-events:none;
+}
+
+.wheel-label{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform-origin:0 0;
+
+  color:white;
+  font-weight:900;
+  font-size:16px;
+
+  text-shadow:
+    0 2px 4px rgba(0,0,0,.6);
+
+  white-space:nowrap;
+  pointer-events:none;
+  z-index:5;
+
+  width:90px;
+  text-align:center;
+
+  margin-left:-45px;
+  margin-top:-10px;
+}
+
+@media(max-width:500px){
+  .wheel-container{
+    width:280px;
+    height:280px;
+  }
+
+  .wheel{
+    width:260px;
+    height:260px;
+  }
+}
 .wheel-center{width:84px;height:84px;border-radius:50%;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900}
 
 .reward-popup{position:fixed;right:18px;bottom:18px;background:#fff;padding:12px 16px;border-radius:10px;box-shadow:var(--shadow);border-left:6px solid var(--red);z-index:80;min-width:220px}

@@ -133,6 +133,55 @@ const rarityOdds = {
   legendary: 35
 };
 
+// =========================
+// WHEEL VISUALS
+// =========================
+
+function createWheel() {
+
+  const wheel = document.getElementById('wheel');
+  if (!wheel) return;
+
+  // Verwijder alle teksten op het wiel
+  wheel.querySelectorAll('.wheel-label').forEach(el => el.remove());
+
+  const segments = [
+    {
+      rarity: 'rare',
+      odds: 15,
+      color: '#008cff'
+    },
+    {
+      rarity: 'epic',
+      odds: 50,
+      color: '#a020f0'
+    },
+    {
+      rarity: 'legendary',
+      odds: 35,
+      color: '#ffd700'
+    }
+  ];
+
+  let currentAngle = 0;
+  const gradientParts = [];
+
+  segments.forEach(segment => {
+
+    const start = currentAngle;
+    const end = currentAngle + (segment.odds / 100) * 360;
+
+    gradientParts.push(
+      `${segment.color} ${start}deg ${end}deg`
+    );
+
+    currentAngle = end;
+  });
+
+  wheel.style.background =
+    `conic-gradient(${gradientParts.join(',')})`;
+}
+
 const crateRarityOdds = {
   common: {
     common: 60,
@@ -371,7 +420,7 @@ function applyOutcome(o) {
   function showPopup(text){ const div = document.createElement('div'); div.className='reward-popup'; div.textContent = text; document.body.appendChild(div); requestAnimationFrame(()=>div.style.opacity=1); setTimeout(()=>{ div.style.opacity=0; setTimeout(()=>div.remove(),400); },3000); }
   function showRewardModal(title, text){ const modal = document.getElementById('rewardModal'); const content = document.getElementById('rewardContent'); if(!modal || !content){ return showPopup(text || title); } content.innerHTML = `<h2>${title || ''}</h2><p>${text||''}</p>`; modal.classList.remove('hidden'); modal.setAttribute('aria-hidden','false'); }
 
-  function openCrate(id) {
+function openCrate(id) {
   const idx = state.inventory.findIndex(i => i.id === id && i.type === 'crate');
   if (idx === -1) return;
   
@@ -403,12 +452,12 @@ function applyOutcome(o) {
   animModal.appendChild(img);
   document.body.appendChild(animModal);
 
-  // Wacht op de animatie (3 seconden) en toon daarna het item
+  // Wacht op de animatie (1.7  seconden) en toon daarna het item
   setTimeout(() => {
     animModal.remove();
     const outcome = spinOutcomeForCrate(crateRarity);
     applyOutcome(outcome);
-  }, 3000);
+  }, 1700);
 }
 
   
@@ -417,9 +466,123 @@ function applyOutcome(o) {
     
     const spinBtn = replaceNode(document.getElementById('spinBtn'));
     const wheel = document.getElementById('wheel');
-    if(spinBtn){ spinBtn.onclick = null; spinBtn.addEventListener('click', ()=>{
-      if(spinBtn.disabled) return; if(state.keys<=0){ showPopup(t('msg.need_key')); return; } state.keys -= 1; updateDisplays(); spinBtn.disabled = true; const spins = Math.floor(Math.random()*6)+6; const deg = spins*360 + Math.floor(Math.random()*360); if(wheel) wheel.style.transform = `rotate(${deg}deg)`; setTimeout(()=>{ const outcome = spinOutcome(); applyOutcome(outcome); spinBtn.disabled = false; },3200);
-    }); }
+    let wheelRotation = 0;
+    if(spinBtn){
+
+  spinBtn.onclick = null;
+
+  spinBtn.addEventListener('click', () => {
+
+    if(spinBtn.disabled) return;
+
+    if(state.keys <= 0){
+      showPopup(t('msg.need_key'));
+      return;
+    }
+
+    // Sleutel gebruiken
+    state.keys -= 1;
+    updateDisplays();
+
+    spinBtn.disabled = true;
+
+    /*
+      Bepaal eerst de reward.
+      Deze gebruikt EXACT dezelfde odds
+      als rarityOdds.
+    */
+    const outcome = spinOutcome();
+
+    if(!outcome){
+      spinBtn.disabled = false;
+      return;
+    }
+
+    /*
+      Bereken waar het gekozen rarity-segment ligt.
+    */
+
+    const segments = [
+      { rarity: 'rare', odds: 15 },
+      { rarity: 'epic', odds: 50 },
+      { rarity: 'legendary', odds: 35 }
+    ];
+
+    let startAngle = 0;
+    let targetStart = 0;
+    let targetEnd = 0;
+
+    for(const segment of segments){
+
+      const size = segment.odds / 100 * 360;
+
+      if(segment.rarity === outcome.rarity){
+
+        targetStart = startAngle;
+        targetEnd = startAngle + size;
+
+        break;
+      }
+
+      startAngle += size;
+    }
+
+    /*
+      Kies een willekeurige plek BINNEN het juiste segment.
+      Hierdoor stopt de pijl altijd op de juiste rarity.
+    */
+
+    const targetAngle =
+      targetStart +
+      Math.random() * (targetEnd - targetStart);
+
+    /*
+      De pijl staat bovenaan = 0 graden.
+
+      We draaien het wiel zo dat targetAngle
+      precies onder de pijl terechtkomt.
+    */
+
+/*
+  Zorg dat ELKE draai minimaal 4 volledige rondes maakt.
+*/
+
+const extraRounds = 4 + Math.floor(Math.random() * 4);
+
+// Huidige positie van het wiel
+const currentAngle =
+  ((wheelRotation % 360) + 360) % 360;
+
+// Bereken hoeveel graden nodig zijn om
+// het gekozen segment onder de pijl te krijgen.
+const correction =
+  ((-targetAngle - currentAngle) % 360 + 360) % 360;
+
+// Minimaal 4 volledige rondes + correcte eindpositie
+const rotation =
+  extraRounds * 360 + correction;
+
+// Bewaar de totale rotatie
+wheelRotation += rotation;
+
+// Draai het wiel
+wheel.style.transform =
+  `rotate(${wheelRotation}deg)`;
+
+    /*
+      Wacht totdat de animatie klaar is.
+    */
+
+    setTimeout(() => {
+
+      applyOutcome(outcome);
+
+      spinBtn.disabled = false;
+
+    }, 5000);
+
+  });
+}
 
     
     // Top-up buttons: use event delegation on the container so cloned
@@ -518,7 +681,11 @@ function applyOutcome(o) {
     });
   }
 
-  renderInventory(); updateDisplays(); applyTranslations(); bindUi();
+  renderInventory(); 
+updateDisplays(); 
+applyTranslations(); 
+bindUi();
+createWheel();
 
   // Populate collectables page if present
   renderCollectablesPage();
