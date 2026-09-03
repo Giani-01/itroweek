@@ -1,1 +1,10 @@
 .inventory-grid .inventory-item .muted{color:var(--muted)}
+
+/* Make inventory items position relative so we can overlay the delete button */
+.inventory-grid .inventory-item{ position: relative; padding:12px; border-radius:6px; background:var(--panel,#fff); box-shadow:0 1px 2px rgba(0,0,0,0.04); }
+
+/* Delete button is hidden by default and shown when hovering the item */
+.inventory-grid .inventory-item .sell-item{ display:none; position:absolute; top:8px; right:8px; background:#28a745; color:white; border:none; padding:6px 8px; border-radius:4px; cursor:pointer; font-size:13px; }
+.inventory-grid .inventory-item:hover .sell-item{ display:inline-block; }
+
+.inventory-grid .inventory-item .btn.open-crate{ margin-top:8px; }
