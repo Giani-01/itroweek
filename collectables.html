@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Collectables</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="collectables.css">
+</head>
+<body>
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">SunnyRed</div>
+    <nav>
+      <a href="home.html" data-i18n="nav.home">Home</a>
+      <a href="inventory.html" data-i18n="nav.inventory">Inventory</a>
+      <a href="collectables.html">Collectables</a>
+      <a href="topup.html" data-i18n="nav.topup">Top Up</a>
+      <a href="store.html" data-i18n="nav.store">Store</a>
+    </nav>
+    <div class="sidebar-footer">© 2026</div>
+  </aside>
+
+  <header class="mobile-header">
+    <button id="hamburger" aria-label="Open menu">☰</button>
+    <div class="brand">SunnyRed</div>
+  </header>
+
+  <main class="content">
+    <section id="collectables" class="page active">
+      <h1 data-i18n="collectables.title">Collectables</h1>
+      <p data-i18n="collectables.desc">List of all possible collectables. Images are placeholders — replace with real images in the `images/` folder.</p>
+      <div class="collectables-grid" id="collectablesGrid"></div>
+    </section>
+  </main>
+
+  <button id="langToggle" class="lang-toggle">EN</button>
+  <script src="script.js"></script>
+</body>
+</html>

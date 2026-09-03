@@ -20,7 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
       'buy.key':'Buy Key (1000)','coins':'coins','keys':'keys',
       'msg.not_enough_coins':'Not enough coins','msg.need_key':'You need a key to spin','msg.key_purchased':'Key purchased','msg.crate_purchased':'You purchased a {tier} crate',
       'reward.coins':'You received {n} coins','reward.crate':'You received a {rarity} crate','reward.collectable':'You received a collectable',
-      'label.collectable':'Collectable','label.unopened':'Unopened','label.unnamed':'Unnamed','button.open':'Open'
+      'label.collectable':'Collectable','label.unopened':'Unopened','label.unnamed':'Unnamed','button.open':'Open',
+      'collectables.title':'Collectables','collectables.desc':'List of all possible collectables. Images are placeholders — replace with real images in the images/ folder.','collectables.empty':'No collectables defined yet.'
     },
     nl: {
       'nav.home':'Start','nav.inventory':'Voorraad','nav.topup':'Opwaarderen','nav.store':'Winkel',
@@ -34,7 +35,8 @@ document.addEventListener('DOMContentLoaded', () => {
       'buy.key':'Koop Sleutel (1000)','coins':'munten','keys':'sleutels',
       'msg.not_enough_coins':'Niet genoeg munten','msg.need_key':'Je hebt een sleutel nodig om te draaien','msg.key_purchased':'Sleutel gekocht','msg.crate_purchased':'Je kocht een {tier} kist',
       'reward.coins':'Je kreeg {n} munten','reward.crate':'Je kreeg een {rarity} kist','reward.collectable':'Je kreeg een verzamelobject',
-      'label.collectable':'Verzamelobject','label.unopened':'Ongeopend','label.unnamed':'Naamloos','button.open':'Openen'
+      'label.collectable':'Verzamelobject','label.unopened':'Ongeopend','label.unnamed':'Naamloos','button.open':'Openen',
+      'collectables.title':'Verzamelobjecten','collectables.desc':'Lijst van alle mogelijke verzamelobjecten. Afbeeldingen zijn tijdelijke aanduidingen — vervang ze met echte afbeeldingen in de images-map.','collectables.empty':'Nog geen verzamelobjecten gedefinieerd.'
     }
   };
 
@@ -66,18 +68,44 @@ document.addEventListener('DOMContentLoaded', () => {
   
   function renderInventory(){ const grid = document.getElementById('inventoryGrid'); if(!grid) return; grid.innerHTML=''; if(state.inventory.length===0){ const d = document.createElement('div'); d.className='notice'; d.textContent = t('inventory.empty'); grid.appendChild(d); return; }
     state.inventory.forEach(item => {
-      const div = document.createElement('div'); div.className='inventory-item'; if(item.type==='crate'){
+      const div = document.createElement('div'); div.className='inventory-item';
+      // Add a sell button which will be shown on hover via CSS.
+      // It contains a data-id attribute so we can remove the correct item and pay coins.
+      const sellBtnHtml = `<button class="btn sell-item" data-id="${item.id}" aria-label="Sell item">Sell</button>`;
+      if(item.type==='crate'){
         const title = t(`crate.${item.rarity}.title`) || (item.rarity? item.rarity[0].toUpperCase()+item.rarity.slice(1)+' Crate':'Crate');
-        div.innerHTML = `<h4>${title}</h4><div class="muted">${t('label.unopened')}</div><button class="btn open-crate" data-id="${item.id}">${t('button.open')}</button>`;
+        div.innerHTML = `${sellBtnHtml}<h4>${title}</h4><div class="muted">${t('label.unopened')}</div><button class="btn open-crate" data-id="${item.id}">${t('button.open')}</button>`;
       } else {
         const collectibleName = item.name || t('label.unnamed');
-        div.innerHTML = `<h4>${collectibleName}</h4><div class="muted">${t('label.collectable')}</div>`;
+        div.innerHTML = `${sellBtnHtml}<h4>${collectibleName}</h4><div class="muted">${t('label.collectable')}</div>`;
       }
       grid.appendChild(div);
     });
     
+    // Open crate buttons (existing behaviour)
     grid.querySelectorAll('.open-crate').forEach(b => b.addEventListener('click', e => {
       const id = Number(b.dataset.id); openCrate(id);
+    }));
+
+    // Sell buttons: remove item when clicked and credit coins based on rarity.
+    const sellPrices = { common:50, rare:100, epic:150, legendary:250 };
+    grid.querySelectorAll('.sell-item').forEach(b => b.addEventListener('click', e => {
+      e.stopPropagation(); // prevent any parent handlers
+      const id = Number(b.dataset.id);
+      if(!Number.isFinite(id)) return;
+      if(!confirm('Sell this item from your inventory?')) return;
+      const idx = state.inventory.findIndex(i => i.id === id);
+      if(idx === -1) return;
+      const itemObj = state.inventory[idx];
+      const rarity = (itemObj && itemObj.rarity) ? itemObj.rarity : 'common';
+      const amount = sellPrices[rarity] || 0;
+      // Remove item and credit coins
+      state.inventory.splice(idx,1);
+      state.coins = (state.coins || 0) + amount;
+      saveState();
+      renderInventory();
+      updateDisplays();
+      showPopup(`Sold for ${amount} coins`);
     }));
   }
 
@@ -119,21 +147,21 @@ const rarityItems = {
   ],
 
   rare: [
-    { type: 'collectable', name: 'Hond' },
-    { type: 'collectable', name: 'Kat' },
+    { type: 'collectable', name: 'Hond', image: 'dog.jpg', description: 'A loyal companion — brings charm and a warm presence to your collection.', description_nl: 'Een trouwe metgezel — brengt charme en warmte aan je verzameling.' },
+    { type: 'collectable', name: 'Kat', image: 'cat.jpg', description: 'Sleek and mysterious — collectors prize its elegance and playful attitude.', description_nl: 'Soepele en mysterieuze metgezel — verzamelaars waarderen zijn elegantie en speelsheid.' },
     { type: 'crate', rarity: 'rare', name: 'Rare Crate' }
   ],
 
   epic: [
-    { type: 'collectable', name: 'Leeuw' },
-    { type: 'collectable', name: 'Krokodil' },
+    { type: 'collectable', name: 'Leeuw', image: 'leeuw.jpg', description: 'A majestic lion — a bold statement piece that signals prestige.', description_nl: 'Een majestueuze leeuw — een gedurfd pronkstuk dat prestige uitstraalt.' },
+    { type: 'collectable', name: 'Krokodil', image: 'crocodile.jpg', description: 'A fierce trophy — perfect for daring collectors who love the extraordinary.', description_nl: 'Een gedurfde trofee — perfect voor durfals die het buitengewone willen.' },
     { type: 'crate', rarity: 'epic', name: 'Epic Crate' }
   ],
 
   legendary: [
-    { type: 'collectable', name: 'Gouden Bever' },
-    { type: 'collectable', name: 'Draak' },
-    { type: 'collectable', name: 'Griffen' },
+    { type: 'collectable', name: 'Gouden Bever', image: 'golden beaver.png', description: 'A dazzling golden beaver — the ultimate trophy that sparkles in any collection.', description_nl: 'Een fonkelende gouden bever — de ultieme trofee die in elke verzameling schittert.' },
+    { type: 'collectable', name: 'Draak', image: 'dragon.jpg', description: 'An ancient dragon — legendary and awe-inspiring, prized by top collectors.', description_nl: 'Een oeroude draak — legendarisch en indrukwekkend, geliefd bij topverzamelaars.' },
+    { type: 'collectable', name: 'Griffen', image: 'griffen.jpg', description: 'A mythical griffin — guardian of treasures and highly coveted for its rarity.', description_nl: 'Een mythische griffioen — bewaker van schatten en zeer gewild vanwege zijn zeldzaamheid.' },
     { type: 'keys', amount: 1, name: '1 Key' },
     { type: 'keys', amount: 2, name: '2 Keys' }
   ]
@@ -362,8 +390,48 @@ function applyOutcome(o) {
   function replaceNode(x){ if(!x) return null; try{ const el = x instanceof HTMLElement ? x : (typeof x==='string'? document.querySelector(x): x); if(!el || !el.parentNode) return el; const n = el.cloneNode(true); el.parentNode.replaceChild(n, el); return n; }catch(e){ return x; } }
   function replaceAll(sel){ return Array.from(document.querySelectorAll(sel)).map(el=>{ if(!el.parentNode) return el; const n = el.cloneNode(true); el.parentNode.replaceChild(n, el); return n; }); }
 
+  // Expose the rarity items so other pages (collectables page) can access them.
+  window.rarityItems = rarityItems;
+
+  /**
+   * Render the "Collectables" page if it exists on the current document.
+   * It iterates `rarityItems` and creates a simple card per collectable item.
+   * Images are left as placeholders — the HTML includes an <img> tag with a
+   * `data-src` so you can drop actual image filenames later.
+   */
+  function renderCollectablesPage(){
+    const grid = document.getElementById('collectablesGrid');
+    if(!grid) return;
+    grid.innerHTML = '';
+    // Build a flat list of collectables from rarityItems
+    const list = [];
+    for(const rarity in rarityItems){
+      rarityItems[rarity].forEach(it => {
+        if(it.type === 'collectable') list.push(Object.assign({rarity}, it));
+      });
+    }
+    if(list.length === 0){ const d = document.createElement('div'); d.className='notice'; d.textContent = t('collectables.empty'); grid.appendChild(d); return; }
+    list.forEach((it, idx) => {
+      const card = document.createElement('div'); card.className = 'collectable-card';
+      // Choose the image (allow spaces in filenames)
+      const imgSrc = it.image ? encodeURI(it.image) : `images/placeholder-${idx%6}.png`;
+      // Localized description: prefer a language-specific property if present
+      const desc = (lang === 'nl' && it.description_nl) ? it.description_nl : (it.description || (lang === 'nl' ? 'Geen beschrijving.' : 'No description yet.'));
+      card.innerHTML = `
+        <div class="thumb"><img src="${imgSrc}" alt="${it.name || 'Collectable'}"></div>
+        <div class="info"><h4>${it.name || 'Unnamed'}</h4><div class="muted">${it.rarity || ''}</div>
+        <p class="desc">${desc}</p></div>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
   renderInventory(); updateDisplays(); applyTranslations(); bindUi();
 
+  // Populate collectables page if present
+  renderCollectablesPage();
+
   const langToggle = document.getElementById('langToggle'); if(langToggle) langToggle.addEventListener('click', ()=>{ lang = (lang==='nl'?'en':'nl'); localStorage.setItem('site_lang', lang); bindUi(); });
+  if(langToggle) langToggle.addEventListener && langToggle.addEventListener('click', ()=>{ renderCollectablesPage(); });
 
 });
