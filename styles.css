@@ -13,6 +13,8 @@ body{margin:0;font-family:Inter, system-ui, Arial, sans-serif;background:var(--b
 .sidebar{
   position:fixed;left:0;top:0;bottom:0;width:240px;padding:28px 20px;background:linear-gradient(180deg,var(--accent),#fff3c4);box-shadow:var(--shadow);display:flex;flex-direction:column;gap:18px}
 .sidebar .brand{font-weight:800;color:var(--red);font-size:20px}
+/* Site logo image when present */
+.site-logo{height:32px;display:block}
   *{box-sizing:border-box}
 .sidebar nav{display:flex;flex-direction:column;gap:8px}
 .sidebar a{display:block;padding:10px;border-radius:10px;color:#3b3b3b;text-decoration:none;font-weight:600}

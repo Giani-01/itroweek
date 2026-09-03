@@ -449,6 +449,36 @@ function applyOutcome(o) {
   // Populate collectables page if present
   renderCollectablesPage();
 
+  // Try to find a site logo image named exactly "log" with common extensions.
+  async function findLogoFile(){
+    const names = ['log'];
+    const exts = ['png','jpg','jpeg','svg','ico','webp','gif'];
+    for(const name of names){
+      for(const ext of exts){
+        const path = `${name}.${ext}`;
+        try{
+          const res = await fetch(path, { method: 'HEAD' });
+          if(res && (res.ok || res.status===200)) return path;
+        }catch(e){ /* ignore */ }
+      }
+    }
+    return null;
+  }
+
+  findLogoFile().then(path => {
+    if(!path) return;
+    // set favicon
+    try{
+      let link = document.querySelector("link[rel~='icon']");
+      if(!link){ link = document.createElement('link'); link.rel = 'icon'; document.head.appendChild(link); }
+      link.href = path;
+    }catch(e){}
+    // replace all `.brand` contents with the logo image
+    document.querySelectorAll('.brand').forEach(b => { b.innerHTML = `<img src="${path}" alt="SunnyRed" class="site-logo">`; });
+  });
+
+  // Note: removed the beforeunload confirmation per user request.
+
   const langToggle = document.getElementById('langToggle'); if(langToggle) langToggle.addEventListener('click', ()=>{ lang = (lang==='nl'?'en':'nl'); localStorage.setItem('site_lang', lang); bindUi(); });
   if(langToggle) langToggle.addEventListener && langToggle.addEventListener('click', ()=>{ renderCollectablesPage(); });
 
