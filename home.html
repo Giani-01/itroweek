@@ -38,13 +38,32 @@
     <section id="home" class="page active">
       <h1 data-i18n="welcome.title">Welcome</h1>
 
-      <div class="wheel-wrap">
-        <div id="wheel" class="wheel">
-          <div class="wheel-center">SPIN</div>
-        </div>
-        <button id="spinBtn" class="btn" data-i18n="spin.button">Spin the Wheel</button>
-        <div class="wheel-note" data-i18n="spin.note">Possible rewards: coins, crates, collectables</div>
-      </div>
+<div class="wheel-wrap">
+
+  <div class="wheel-container">
+
+    <!-- Pijl die altijd bovenaan blijft -->
+    <div class="wheel-pointer"></div>
+
+    <!-- Het rad -->
+    <div id="wheel" class="wheel">
+
+      <!-- Middelpunt -->
+      <div class="wheel-center">SPIN</div>
+
+    </div>
+
+  </div>
+
+  <button id="spinBtn" class="btn" data-i18n="spin.button">
+    Spin the Wheel
+  </button>
+
+  <div class="wheel-note" data-i18n="spin.note">
+    Possible rewards: coins, crates, collectables
+  </div>
+
+</div>
     </section>
   </main>
 
