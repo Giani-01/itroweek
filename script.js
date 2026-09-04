@@ -11,6 +11,63 @@ document.addEventListener('DOMContentLoaded', () => {
   const audioCoins = new Audio('coinsondesk.mp3');
   [audioSpin, audioCollect, audioCoins].forEach(a => { try{ a.preload = 'auto'; a.load(); }catch(e){} });
 
+  // Background music (looping) with persistent volume control
+  const bgVolumeKey = 'bgVolume';
+  const savedBg = parseFloat(localStorage.getItem(bgVolumeKey));
+  const initialBgVolume = Number.isFinite(savedBg) ? savedBg : 0.5;
+  const audioBg = new Audio('341695__projectsu012__coins-1.mp3');
+  audioBg.loop = true;
+  audioBg.preload = 'auto';
+  audioBg.volume = initialBgVolume;
+  try{ audioBg.load(); }catch(e){}
+  let bgStarted = false;
+
+  // Inject minimal styles and controls (floating button + slider)
+  try{
+    const style = document.createElement('style');
+    style.textContent = `#audioControl{position:fixed;right:16px;bottom:16px;z-index:9999;font-family:sans-serif}
+    #audioControl .vol-btn{width:44px;height:44px;border-radius:50%;background:#222;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.3)}
+    #audioControl .vol-slider{display:none;position:absolute;right:60px;bottom:0;width:160px;background:rgba(0,0,0,0.6);padding:8px;border-radius:8px}
+    #audioControl.open .vol-slider{display:block}
+    #audioControl input[type=range]{width:100%}
+    `;
+    document.head.appendChild(style);
+
+    const control = document.createElement('div');
+    control.id = 'audioControl';
+    control.innerHTML = `<div class="vol-btn" title="Audio">🔈</div><div class="vol-slider"><input id="volumeSlider" type="range" min="0" max="1" step="0.01" value="${audioBg.volume}"></div>`;
+    document.body.appendChild(control);
+
+    const volBtn = control.querySelector('.vol-btn');
+    const slider = control.querySelector('#volumeSlider');
+
+    // Toggle slider visibility and attempt to start playback on user interaction
+    volBtn.addEventListener('click', (e) => {
+      control.classList.toggle('open');
+      if(!bgStarted){
+        audioBg.play().then(()=>{ bgStarted = true; volBtn.textContent = '🔊'; }).catch(()=>{ volBtn.textContent = '🔈'; });
+      } else {
+        // Toggle pause/play if already started
+        if(audioBg.paused){ audioBg.play().catch(()=>{}); volBtn.textContent = '🔊'; }
+        else { audioBg.pause(); volBtn.textContent = '🔈'; }
+      }
+    });
+
+    slider.addEventListener('input', () => {
+      const v = Number(slider.value);
+      audioBg.volume = v;
+      localStorage.setItem(bgVolumeKey, String(v));
+      if(!bgStarted){ audioBg.play().then(()=>{ bgStarted = true; volBtn.textContent = '🔊'; }).catch(()=>{}); }
+    });
+
+    // Start background on first user interaction if possible (handles autoplay restrictions)
+    const startOnUser = () => {
+      if(!bgStarted){ audioBg.play().then(()=>{ bgStarted = true; volBtn.textContent = '🔊'; }).catch(()=>{}); }
+      document.removeEventListener('click', startOnUser, true);
+    };
+    document.addEventListener('click', startOnUser, true);
+  }catch(e){}
+
   
   let lang = localStorage.getItem('site_lang') || 'en';
   const translations = {
