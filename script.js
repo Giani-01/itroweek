@@ -5,6 +5,12 @@ document.addEventListener('DOMContentLoaded', () => {
   function loadState(){ try{ const s = JSON.parse(localStorage.getItem('site_state')); if(s) state = Object.assign(state, s); }catch(e){} }
   loadState();
 
+  // Audio assets (use sound files added to the project root)
+  const audioSpin = new Audio('michael-jackson-hee-hee.mp3');
+  const audioCollect = new Audio('shocked-sound-effect.mp3');
+  const audioCoins = new Audio('coinsondesk.mp3');
+  [audioSpin, audioCollect, audioCoins].forEach(a => { try{ a.preload = 'auto'; a.load(); }catch(e){} });
+
   
   let lang = localStorage.getItem('site_lang') || 'en';
   const translations = {
@@ -105,15 +111,16 @@ document.addEventListener('DOMContentLoaded', () => {
       saveState();
       renderInventory();
       updateDisplays();
-      showPopup(`Sold for ${amount} coins`);
+        try{ audioCoins.currentTime = 0; audioCoins.play().catch(()=>{}); }catch(e){}
+        showPopup(`Sold for ${amount} coins`);
     }));
   }
 
   
   function addCoins(n){ state.coins += n; updateDisplays(); showRewardModal(t('reward.coins',{n})); }
+  function buyKey(){ const cost = 1000; if(state.coins < cost){ showPopup(t('msg.not_enough_coins')); return; } state.coins -= cost; state.keys += 1; updateDisplays(); try{ audioCoins.currentTime = 0; audioCoins.play().catch(()=>{}); }catch(e){}; showPopup(t('msg.key_purchased')); }
   function addCrate(r){ state.inventory.push({id: state.nextId++, type:'crate', rarity: r}); saveState(); renderInventory(); showRewardModal(t(`crate.${r}.title`)||'Crate', t('reward.crate',{rarity: t(`crate.${r}.title`)})); }
   function addCollectable(){ state.inventory.push({id: state.nextId++, type:'collectable'}); saveState(); renderInventory(); showRewardModal(t('reward.collectable')); }
-  function buyKey(){ const cost = 1000; if(state.coins < cost){ showPopup(t('msg.not_enough_coins')); return; } state.coins -= cost; state.keys += 1; updateDisplays(); showPopup(t('msg.key_purchased')); }
 
   
   function randChoice(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
@@ -407,6 +414,9 @@ function applyOutcome(o) {
     saveState();
     renderInventory();
 
+    // Play collectable sound
+    try{ audioCollect.currentTime = 0; audioCollect.play().catch(()=>{}); }catch(e){}
+
     showRewardModal(
       o.rarity.toUpperCase(),
       `${o.name} (${o.rarity})`
@@ -485,6 +495,9 @@ function openCrate(id) {
     updateDisplays();
 
     spinBtn.disabled = true;
+
+    // Play spin sound
+    try{ audioSpin.currentTime = 0; audioSpin.play().catch(()=>{}); }catch(e){}
 
     /*
       Bepaal eerst de reward.
@@ -613,7 +626,7 @@ wheel.style.transform =
     if(cancelPayment) cancelPayment.addEventListener('click', ()=>{ const pm = document.getElementById('paymentModal'); if(pm) pm.setAttribute('aria-hidden','true'); });
     if(confirmPayment) confirmPayment.addEventListener('click', ()=>{
       console.log('Confirm payment clicked, pendingTopup=', pendingTopup);
-      if(paymentProcessing) paymentProcessing.setAttribute('aria-hidden','false'); setTimeout(()=>{ const gained = (pendingTopup||0)*10; addCoins(gained); const pm = document.getElementById('paymentModal'); if(pm) pm.setAttribute('aria-hidden','true'); if(paymentProcessing) paymentProcessing.setAttribute('aria-hidden','true'); const topupNotice = document.getElementById('topupNotice'); if(topupNotice) topupNotice.textContent = `${t('topup.title')} €${pendingTopup} — ${t('reward.coins',{n:gained})}`; pendingTopup = 0; }, 1200);
+      if(paymentProcessing) paymentProcessing.setAttribute('aria-hidden','false'); setTimeout(()=>{ const gained = (pendingTopup||0)*10; addCoins(gained); try{ audioCoins.currentTime = 0; audioCoins.play().catch(()=>{}); }catch(e){}; const pm = document.getElementById('paymentModal'); if(pm) pm.setAttribute('aria-hidden','true'); if(paymentProcessing) paymentProcessing.setAttribute('aria-hidden','true'); const topupNotice = document.getElementById('topupNotice'); if(topupNotice) topupNotice.textContent = `${t('topup.title')} €${pendingTopup} — ${t('reward.coins',{n:gained})}`; pendingTopup = 0; }, 1200);
     });
 
     
@@ -622,7 +635,7 @@ wheel.style.transform =
 
     
     replaceAll('.buy-crate').forEach(b => b.addEventListener('click', ()=>{
-      const tier = b.dataset.tier || 'common'; const prices = { common:100, rare:250, epic:600 }; const price = prices[tier]||prices.common; if(state.coins < price){ showPopup(t('msg.not_enough_coins')); return; } state.coins -= price; state.inventory.push({id: state.nextId++, type:'crate', rarity: tier}); saveState(); renderInventory(); updateDisplays(); showPopup(t('msg.crate_purchased',{tier: t(`crate.${tier}.title`)}));
+      const tier = b.dataset.tier || 'common'; const prices = { common:100, rare:250, epic:600 }; const price = prices[tier]||prices.common; if(state.coins < price){ showPopup(t('msg.not_enough_coins')); return; } state.coins -= price; state.inventory.push({id: state.nextId++, type:'crate', rarity: tier}); saveState(); renderInventory(); updateDisplays(); try{ audioCoins.currentTime = 0; audioCoins.play().catch(()=>{}); }catch(e){}; showPopup(t('msg.crate_purchased',{tier: t(`crate.${tier}.title`)}));
     }));
 
     
